@@ -1,0 +1,8 @@
+#cloud-config
+system_info:
+  default_user:
+    name: runner
+password: runner
+ssh_pwauth: true
+chpasswd:
+  expire: false

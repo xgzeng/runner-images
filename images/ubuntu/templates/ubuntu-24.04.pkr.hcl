@@ -1,3 +1,12 @@
+packer {
+  required_plugins {
+    qemu = {
+      version = "~> 1"
+      source  = "github.com/hashicorp/qemu"
+    }
+  }
+}
+
 variable "allowed_inbound_ip_addresses" {
   type    = list(string)
   default = []
@@ -185,6 +194,11 @@ variable "image_os_type" {
   default = "Linux"
 }
 
+variable "output_dir" {
+  type = string
+  default = "output/ubuntu-24.04"
+}
+
 source "azure-arm" "build_image" {
   allowed_inbound_ip_addresses           = "${var.allowed_inbound_ip_addresses}"
   build_resource_group_name              = "${var.build_resource_group_name}"
@@ -227,8 +241,33 @@ source "azure-arm" "build_image" {
   }
 }
 
+source "qemu" "build_image" {
+  iso_url            = "https://cloud-images.ubuntu.com/noble/20250610/noble-server-cloudimg-amd64.img"
+  iso_checksum       = "92d2c4591af9a82785464bede56022c49d4be27bde1bdcf4a9fccc62425cda43"
+  output_directory   = "${var.output_dir}"
+  # disk_image = true, because we use cloud image, instead of ISO image
+  disk_image         = true
+  disk_size          = "${var.os_disk_size_gb}G"
+  format             = "qcow2"
+  accelerator        = "kvm"
+  headless           = true
+  memory             = 4096
+  # username/password is set by cloud-init
+  ssh_username       = "runner"
+  ssh_password       = "runner"
+  ssh_wait_timeout = "5m"
+  shutdown_command   = "echo 'runner' | sudo -S shutdown -P now"
+  # CDROM for cloud-init
+  cd_files           = ["${path.root}/../cloud-init/*"]
+  cd_label           = "cidata"
+#  qemuargs = [
+#    ["-serial", "mon:stdio"],
+#  ]
+}
+
 build {
-  sources = ["source.azure-arm.build_image"]
+  // sources = ["source.azure-arm.build_image"]
+  sources = ["source.qemu.build_image"]
 
   provisioner "shell" {
     execute_command = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
@@ -375,7 +414,8 @@ provisioner "shell" {
       "${path.root}/../scripts/build/install-pypy.sh",
       "${path.root}/../scripts/build/install-python.sh",
       "${path.root}/../scripts/build/install-zstd.sh",
-      "${path.root}/../scripts/build/install-ninja.sh"
+      "${path.root}/../scripts/build/install-ninja.sh",
+      "${path.root}/../scripts/build/install-nektos-act.sh"
     ]
   }
 
@@ -447,7 +487,6 @@ provisioner "shell" {
 
   provisioner "shell" {
     execute_command = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
-    inline          = ["sleep 30", "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"]
+    inline          = ["sleep 30", "([[ -f /usr/sbin/waagent ]] && /usr/sbin/waagent -force -deprovision+user) && export HISTSIZE=0 && sync"]
   }
-
 }
