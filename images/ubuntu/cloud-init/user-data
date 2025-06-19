@@ -1,0 +1,13 @@
+#cloud-config
+system_info:
+  default_user:
+    name: runner
+password: runner
+ssh_pwauth: true
+chpasswd:
+  expire: false
+#apt:
+#  primary:
+#    - arches: [default]
+#      uri: http://mirrors.cloud.aliyuncs.com/ubuntu/
+#      uri: http://mirror.pilotfiber.com/ubuntu/
