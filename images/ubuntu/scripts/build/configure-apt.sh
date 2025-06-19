@@ -48,7 +48,7 @@ fi
 
 apt-get update
 # Install jq
-apt-get install jq
+apt-get install jq walinuxagent
 
 if ! is_ubuntu24; then
     # Install apt-fast using quick-install.sh

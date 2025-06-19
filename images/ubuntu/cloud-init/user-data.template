@@ -1,0 +1,9 @@
+#cloud-config
+password: ${password}
+ssh_pwauth: true
+chpasswd:
+  expire: false
+# apt:
+#   primary:
+#     - arches: [default]
+#       uri: http://mirror.pilotfiber.com/ubuntu/

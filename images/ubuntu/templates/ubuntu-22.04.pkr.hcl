@@ -229,6 +229,7 @@ source "azure-arm" "build_image" {
 
 build {
   sources = ["source.azure-arm.build_image"]
+  name = "ubuntu-22.04"
 
   provisioner "shell" {
     execute_command = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
@@ -386,7 +387,8 @@ build {
       "${path.root}/../scripts/build/install-pypy.sh",
       "${path.root}/../scripts/build/install-python.sh",
       "${path.root}/../scripts/build/install-zstd.sh",
-      "${path.root}/../scripts/build/install-ninja.sh"
+      "${path.root}/../scripts/build/install-ninja.sh",
+      "${path.root}/../scripts/build/install-nektos-act.sh"
     ]
   }
 
