@@ -169,3 +169,8 @@ variable "install_user" {
   type    = string
   default = "installer"
 }
+
+variable "ssh_password" {
+  type = string
+  default = "${env("PACKER_SSH_PASSWORD")}"
+}
