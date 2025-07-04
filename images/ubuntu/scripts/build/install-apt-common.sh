@@ -4,6 +4,8 @@
 ##  Desc:  Install basic command line utilities and dev packages
 ################################################################################
 
+set -e
+
 # Source the helpers for use with the script
 source $HELPER_SCRIPTS/install.sh
 

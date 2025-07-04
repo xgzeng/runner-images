@@ -1,5 +1,5 @@
 build {
-  sources = ["source.azure-arm.image"]
+  sources = ["source.azure-arm.image", "source.qemu.image", "source.amazon-ebs.image"]
   name = "ubuntu-22_04"
 
   provisioner "shell" {
@@ -249,4 +249,10 @@ build {
     inline          = ["sleep 30", "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"]
   }
 
+  provisioner "shell" {
+    # deprovision happen in shutdown_command for qemu
+    only = ["amazon-ebs.image"]
+    execute_command = "sudo sh -c '{{ .Vars }} {{ .Path }}'"
+    scripts         = ["${path.root}/../scripts/build/deprovision.sh"]
+  }
 }
